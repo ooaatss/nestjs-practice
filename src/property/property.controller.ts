@@ -8,15 +8,11 @@ import {
   Body,
   HttpCode,
   ParseIntPipe,
-  UsePipes,
-  ValidationPipe,
+  Delete,
 } from '@nestjs/common';
 import { CreatePropertyDto } from './dto/createProperty.dto';
 import { ParseIdPipe } from './pipes/parseidpipe';
-import { ZodValidationPipe } from './pipes/zodValidationPipe';
-import { createPropertSchema } from './dto/createPropertyZod';
-import { HeadersDto } from './dto/header.dto';
-import { RequestHeader } from './pipes/request-header';
+import { UpdatePropertyDto } from './dto/updateProperty.dto';
 
 @Controller('property')
 export class PropertyController {
@@ -26,25 +22,24 @@ export class PropertyController {
     return this.propertyService.findAll();
   }
 
-  @Get(':id/:slug')
-  findOne(@Param('id', ParseIntPipe) id: string, @Param('slug') slug: string) {
-    this.propertyService.findOne();
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id) {
+    return this.propertyService.findOne(id);
   }
 
   @Post()
   @HttpCode(201)
-  @UsePipes(new ZodValidationPipe(createPropertSchema))
-  create(@Body() body: CreatePropertyDto) {
-    return this.propertyService.create();
+  create(@Body() dto: CreatePropertyDto) {
+    return this.propertyService.create(dto);
   }
 
   @Patch(':id')
-  update(
-    @Param('id', ParseIdPipe) id,
-    @Body() body: CreatePropertyDto,
-    @RequestHeader(new ValidationPipe({ validateCustomDecorators: true }))
-    header: HeadersDto,
-  ) {
-    return this.propertyService.update();
+  update(@Param('id', ParseIdPipe) id, @Body() dto: UpdatePropertyDto) {
+    return this.propertyService.update(id, dto);
+  }
+
+  @Delete(':id')
+  delete(@Param('id', ParseIdPipe) id) {
+    return this.propertyService.delete(id);
   }
 }
